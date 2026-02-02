@@ -1,0 +1,145 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "38f677b7-c607-4c1a-994e-c6a58897935d",
+      "name": "When chat message received",
+      "webhookId": "34b34133-a037-44be-bfe7-114eb836cde5"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a data assistant for the Online Retail II dataset stored in MySQL.\n\nWhen you need data, you MUST call the MySQL tool and pass:\n{ \"query\": \"<SQL>\" }\n\nSQL SAFETY:\n- SELECT only. Never use INSERT/UPDATE/DELETE/DROP/ALTER.\n- Only use table: retail\n- Columns: InvoiceNo, StockCode, Description, Quantity, InvoiceDate, UnitPrice, CustomerID, Country\n- InvoiceNo starting with 'C' indicates cancellation.\n- Revenue = SUM(Quantity * UnitPrice)\n\nMYSQL STRICT GROUP BY RULE (ONLY_FULL_GROUP_BY):\n- If you use GROUP BY, every selected column must be either in the GROUP BY or aggregated (SUM/COUNT/AVG/MIN/MAX).\n- Do not select extra columns that are not grouped or aggregated.\n\nOUTPUT:\nAfter results, respond with:\n1) Answer summary\n2) SQL you ran\n3) Brief interpretation\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b49ad813-2422-4f39-b4dc-314de5cf557d",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        208
+      ],
+      "id": "9c4ad774-18ab-464f-a993-0e8b97c5156e",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{$json.query}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.mySqlTool",
+      "typeVersion": 2.5,
+      "position": [
+        512,
+        320
+      ],
+      "id": "3e16869f-2a90-41a4-b581-5da209f78b57",
+      "name": "Execute a SQL query in MySQL",
+      "credentials": {
+        "mySql": {
+          "id": "w3utO4wKWWwIVAWZ",
+          "name": "MySQL account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.1:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        80,
+        208
+      ],
+      "id": "8f0b7ac2-e51b-48ca-8a2d-d2082b8f10fc",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "VZtCs619wCIvBaUo",
+          "name": "Ollama account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query in MySQL": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "2040d4c3-a9ed-4480-986c-81f8baf71205",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ea953b6175651e24485877aa5cdc1701147c6714d176add87a27dd1df5029b03"
+  },
+  "id": "uJhail86dOcBqAW-rt5rt",
+  "tags": []
+}

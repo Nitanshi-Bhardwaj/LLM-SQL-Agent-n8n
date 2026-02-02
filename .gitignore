@@ -1,0 +1,12 @@
+﻿# n8n/mysql local volumes (DO NOT COMMIT)
+n8n_data/
+mysql_data/
+.n8n/
+
+# data files (too large / not needed in repo)
+*.csv
+*.xlsx
+
+# OS
+Thumbs.db
+.DS_Store
